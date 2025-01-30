@@ -12,7 +12,6 @@ const AdminPanel = () => {
   });
   const [editBook, setEditBook] = useState(null);
 
-  // Fetch books when the component mounts
   useEffect(() => {
     fetchBooks();
   }, []);
@@ -26,7 +25,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Add a new book
   const handleAddBook = async () => {
     try {
       await axios.post("http://localhost:5000/books", {
@@ -37,11 +35,10 @@ const AdminPanel = () => {
       fetchBooks();
       setNewBook({ title: "", author: "", genre: "", quantity: "", price: "" });
     } catch (error) {
-      console.error("Error adding book:", error.response ? error.response.data : error.message);
+      console.error("Error adding book:", error);
     }
   };
 
-  // Update an existing book
   const handleUpdateBook = async () => {
     if (!editBook) return;
     try {
@@ -53,11 +50,10 @@ const AdminPanel = () => {
       fetchBooks();
       setEditBook(null);
     } catch (error) {
-      console.error("Error updating book:", error.response ? error.response.data : error.message);
+      console.error("Error updating book:", error);
     }
   };
 
-  // Delete a book
   const handleDeleteBook = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/books/${id}`);
@@ -67,138 +63,100 @@ const AdminPanel = () => {
     }
   };
 
+  const styles = {
+    container: { padding: "20px", maxWidth: "1000px", margin: "auto", fontFamily: "Arial, sans-serif", backgroundColor: "#f8f9fa" },
+    card: { background: "white", padding: "20px", marginBottom: "20px", borderRadius: "8px", boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)" },
+    title: { textAlign: "center", fontSize: "28px", marginBottom: "20px" },
+    inputGroup: { display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "10px" },
+    input: { flex: 1, padding: "10px", border: "1px solid #ddd", borderRadius: "5px", fontSize: "16px" },
+    button: { padding: "10px 15px", border: "none", cursor: "pointer", fontSize: "16px", borderRadius: "5px", transition: "0.3s" },
+    btnAdd: { backgroundColor: "#007bff", color: "white" },
+    btnEdit: { backgroundColor: "#ffc107", color: "black" },
+    btnDelete: { backgroundColor: "#dc3545", color: "white", marginLeft: "5px" },
+    btnSave: { backgroundColor: "#28a745", color: "white" },
+    tableContainer: { overflowX: "auto" },
+    table: { width: "100%", borderCollapse: "collapse" ,color:"black" },
+    thTd: { padding: "10px", textAlign: "left", borderBottom: "1px solid #ddd" },
+    th: { backgroundColor: "#f4f4f4" ,color:"black"},
+    h2:{color:"black"},
+    trHover: { backgroundColor: "#f1f1f1" }
+  };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Admin Panel</h1>
 
       {/* Add New Book */}
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold">Add a New Book</h2>
-        <div className="flex flex-col gap-2">
-          <input
-            type="text"
-            placeholder="Title"
-            value={newBook.title}
-            onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Author"
-            value={newBook.author}
-            onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Genre"
-            value={newBook.genre}
-            onChange={(e) => setNewBook({ ...newBook, genre: e.target.value })}
-          />
-          <input
-            type="number"
-            placeholder="Quantity"
-            value={newBook.quantity}
-            onChange={(e) =>
-              setNewBook({ ...newBook, quantity: e.target.value })
-            }
-          />
-          <input
-            type="number"
-            placeholder="Price"
-            value={newBook.price}
-            onChange={(e) => setNewBook({ ...newBook, price: e.target.value })}
-          />
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={handleAddBook}
-          >
-            Add Book
-          </button>
+      <div style={styles.card}>
+        <h2>Add a New Book</h2>
+        <div style={styles.inputGroup}>
+          {["Title", "Author", "Genre", "Quantity", "Price"].map((field) => (
+            <input
+              key={field}
+              type={field === "Quantity" || field === "Price" ? "number" : "text"}
+              placeholder={field}
+              value={newBook[field.toLowerCase()]}
+              onChange={(e) => setNewBook({ ...newBook, [field.toLowerCase()]: e.target.value })}
+              style={styles.input}
+            />
+          ))}
         </div>
+        <button style={{ ...styles.button, ...styles.btnAdd }} onClick={handleAddBook}>
+          Add Book
+        </button>
       </div>
 
       {/* Books Table */}
-      <h2 className="text-xl font-semibold mb-2">Books</h2>
-      <table className="w-full border-collapse border border-gray-200">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 px-4 py-2">ID</th>
-            <th className="border border-gray-300 px-4 py-2">Title</th>
-            <th className="border border-gray-300 px-4 py-2">Author</th>
-            <th className="border border-gray-300 px-4 py-2">Genre</th>
-            <th className="border border-gray-300 px-4 py-2">Quantity</th>
-            <th className="border border-gray-300 px-4 py-2">Price</th>
-            <th className="border border-gray-300 px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.map((book) => (
-            <tr key={book.id}>
-              <td className="border border-gray-300 px-4 py-2">{book.id}</td>
-              <td className="border border-gray-300 px-4 py-2">{book.title}</td>
-              <td className="border border-gray-300 px-4 py-2">{book.author}</td>
-              <td className="border border-gray-300 px-4 py-2">{book.genre}</td>
-              <td className="border border-gray-300 px-4 py-2">{book.quantity}</td>
-              <td className="border border-gray-300 px-4 py-2">{book.price}</td>
-              <td className="border border-gray-300 px-4 py-2">
-                <button
-                  className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
-                  onClick={() => setEditBook({ ...book })}
-                >
-                  Edit
-                </button>
-                <button
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                  onClick={() => handleDeleteBook(book.id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={styles.card}>
+        <h2 style={styles.h2}>Books</h2>
+        <div style={styles.tableContainer}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                {["ID", "Title", "Author", "Genre", "Quantity", "Price", "Actions"].map((header) => (
+                  <th key={header} style={{ ...styles.thTd, ...styles.th }}>{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {books.map((book) => (
+                <tr key={book.id} style={styles.trHover}>
+                  {["id", "title", "author", "genre", "quantity", "price"].map((key) => (
+                    <td key={key} style={styles.thTd}>{book[key]}</td>
+                  ))}
+                  <td style={styles.thTd}>
+                    <button style={{ ...styles.button, ...styles.btnEdit }} onClick={() => setEditBook({ ...book })}>
+                      Edit
+                    </button>
+                    <button style={{ ...styles.button, ...styles.btnDelete }} onClick={() => handleDeleteBook(book.id)}>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Edit Book */}
       {editBook && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold">Edit Book</h2>
-          <div className="flex flex-col gap-2">
-            <input
-              type="text"
-              value={editBook.title}
-              onChange={(e) => setEditBook({ ...editBook, title: e.target.value })}
-            />
-            <input
-              type="text"
-              value={editBook.author}
-              onChange={(e) =>
-                setEditBook({ ...editBook, author: e.target.value })
-              }
-            />
-            <input
-              type="text"
-              value={editBook.genre}
-              onChange={(e) => setEditBook({ ...editBook, genre: e.target.value })}
-            />
-            <input
-              type="number"
-              value={editBook.quantity}
-              onChange={(e) =>
-                setEditBook({ ...editBook, quantity: e.target.value })
-              }
-            />
-            <input
-              type="number"
-              value={editBook.price}
-              onChange={(e) => setEditBook({ ...editBook, price: e.target.value })}
-            />
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded"
-              onClick={handleUpdateBook}
-            >
-              Save Changes
-            </button>
+        <div style={styles.card}>
+          <h2>Edit Book</h2>
+          <div style={styles.inputGroup}>
+            {["Title", "Author", "Genre", "Quantity", "Price"].map((field) => (
+              <input
+                key={field}
+                type={field === "Quantity" || field === "Price" ? "number" : "text"}
+                value={editBook[field.toLowerCase()]}
+                onChange={(e) => setEditBook({ ...editBook, [field.toLowerCase()]: e.target.value })}
+                style={styles.input}
+              />
+            ))}
           </div>
+          <button style={{ ...styles.button, ...styles.btnSave }} onClick={handleUpdateBook}>
+            Save Changes
+          </button>
         </div>
       )}
     </div>
